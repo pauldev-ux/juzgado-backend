@@ -1,5 +1,6 @@
 const db = require('../db');
 
+// Obtener lista de jueces
 const getJueces = async (req, res) => {
   try {
     const result = await db.query('SELECT id, nombre, apellido, carnet_identidad, email FROM jueces');
@@ -10,9 +11,24 @@ const getJueces = async (req, res) => {
   }
 };
 
+// Obtener juez por ID
+const getJuezById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('SELECT * FROM jueces WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Juez no encontrado' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error al obtener el juez:', error);
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
+};
+
+// Crear juez
 const crearJuez = async (req, res) => {
   const { nombre, apellido, carnet_identidad, email, password } = req.body;
-
   try {
     await db.query(
       'INSERT INTO jueces (nombre, apellido, carnet_identidad, email, password) VALUES ($1, $2, $3, $4, $5)',
@@ -25,7 +41,47 @@ const crearJuez = async (req, res) => {
   }
 };
 
+// Actualizar juez
+const updateJuez = async (req, res) => {
+  const { id } = req.params;
+  const { nombre, apellido, carnet_identidad, email, password } = req.body;
+  try {
+    const result = await db.query(
+      `UPDATE jueces SET nombre = $1, apellido = $2, carnet_identidad = $3, email = $4, password = $5
+       WHERE id = $6 RETURNING *`,
+      [nombre, apellido, carnet_identidad, email, password, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Juez no encontrado' });
+    }
+
+    res.status(200).json({ mensaje: 'Juez actualizado correctamente', juez: result.rows[0] });
+  } catch (error) {
+    console.error('Error al actualizar el juez:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar el juez' });
+  }
+};
+
+// Eliminar juez
+const deleteJuez = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('DELETE FROM jueces WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Juez no encontrado' });
+    }
+    res.status(200).json({ mensaje: 'Juez eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar el juez:', error);
+    res.status(500).json({ mensaje: 'Error al eliminar el juez' });
+  }
+};
+
 module.exports = {
   getJueces,
-  crearJuez
+  getJuezById,
+  crearJuez,
+  updateJuez,
+  deleteJuez
 };
