@@ -3,6 +3,8 @@ const db = require('../db');
 
 const SECRET_KEY = 'mi_clave_secreta';
 
+
+
 const login = async (req, res) => {
   const { email, password } = req.body;
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+app.use(express.json());
 const PORT = 3001;
 
 app.use(cors());  // Habilita CORS para permitir peticiones desde el frontend
