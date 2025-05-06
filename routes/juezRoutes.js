@@ -5,7 +5,8 @@ const {
   getJuezById,
   crearJuez,
   updateJuez,
-  deleteJuez
+  deleteJuez,
+  getPerfilJuez
 } = require('../controllers/juezController');
 
 // Obtener todos los jueces
@@ -22,5 +23,7 @@ router.put('/update/:id', updateJuez);
 
 // Eliminar un juez
 router.delete('/delete/:id', deleteJuez);
+
+router.get('/perfil/:carnet', getPerfilJuez); 
 
 module.exports = router;

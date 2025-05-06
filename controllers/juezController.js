@@ -78,10 +78,29 @@ const deleteJuez = async (req, res) => {
   }
 };
 
+
+// Obtener perfil del juez por carnet de identidad
+const getPerfilJuez = async (req, res) => {
+  const { carnet } = req.params;
+  try {
+    const result = await db.query('SELECT * FROM jueces WHERE carnet_identidad = $1', [carnet]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Juez no encontrado' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error al obtener perfil del juez:', error);
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
+};
+
+
+
 module.exports = {
   getJueces,
   getJuezById,
   crearJuez,
   updateJuez,
-  deleteJuez
+  deleteJuez,
+  getPerfilJuez  // 
 };

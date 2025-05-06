@@ -78,10 +78,38 @@ const deleteAbogado = async (req, res) => {
   }
 };
 
+
+// Obtener perfil del abogado por ID y sus expedientes
+const getPerfilAbogado = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Obtener los datos del abogado
+    const abogadoResult = await db.query('SELECT * FROM abogados WHERE id = $1', [id]);
+    if (abogadoResult.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Abogado no encontrado' });
+    }
+    const abogado = abogadoResult.rows[0];
+
+    // Obtener los expedientes asociados (donde sea abogado demandante o demandado)
+    const expedientesResult = await db.query(
+      `SELECT * FROM expedientes 
+       WHERE abogado_demandante_carnet = $1 OR abogado_demandado_carnet = $1`,
+      [abogado.carnet_identidad]
+    );
+
+    res.json({ abogado, expedientes: expedientesResult.rows });
+  } catch (error) {
+    console.error('Error al obtener perfil del abogado:', error);
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
+};
+
 module.exports = {
   getAbogados,
   getAbogadoById,
   crearAbogado,
   updateAbogado,
-  deleteAbogado
+  deleteAbogado,
+  getPerfilAbogado // nuevo
 };

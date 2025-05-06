@@ -125,6 +125,37 @@ const updateExpediente = async (req, res) => {
 };
 
 
+const getExpedientesByAbogado = async (req, res) => {
+  const { carnet } = req.params;
+  try {
+    const result = await db.query(
+      `SELECT * FROM expedientes 
+       WHERE abogado_demandante_carnet = $1 
+          OR abogado_demandado_carnet = $1`,
+      [carnet]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error al obtener expedientes del abogado:', error);
+    res.status(500).json({ mensaje: 'Error al obtener expedientes' });
+  }
+};
+
+
+const getExpedientesByJuez = async (req, res) => {
+  const { carnet } = req.params;
+  try {
+    const result = await db.query(
+      `SELECT * FROM expedientes WHERE juez_carnet = $1`,
+      [carnet]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error al obtener expedientes del juez:', error);
+    res.status(500).json({ mensaje: 'Error al obtener expedientes' });
+  }
+};
+
 
 module.exports = {
   getExpedientes,
@@ -134,4 +165,6 @@ module.exports = {
   getJueces,
   deleteExpediente,
   updateExpediente,
+  getExpedientesByAbogado,
+  getExpedientesByJuez
 };

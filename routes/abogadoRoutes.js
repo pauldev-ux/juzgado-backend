@@ -5,7 +5,8 @@ const {
   getAbogadoById,
   crearAbogado,
   updateAbogado,
-  deleteAbogado
+  deleteAbogado,
+  getPerfilAbogado
 } = require('../controllers/abogadoController');
 
 // Obtener todos los abogados
@@ -22,5 +23,7 @@ router.put('/update/:id', updateAbogado);
 
 // Eliminar un abogado
 router.delete('/delete/:id', deleteAbogado);
+
+router.get('/perfil/:id', getPerfilAbogado); // nueva ruta
 
 module.exports = router;

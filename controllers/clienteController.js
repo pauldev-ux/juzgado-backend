@@ -13,18 +13,60 @@ const getClientes = async (req, res) => {
 
 // Obtener cliente por ID
 const getClienteById = async (req, res) => {
-  const { id } = req.params;  // Obtener el id del cliente desde los parámetros de la URL
+  const { id } = req.params;
   try {
     const result = await db.query('SELECT * FROM clientes WHERE id = $1', [id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ mensaje: 'Cliente no encontrado' });
     }
-    res.json(result.rows[0]);  // Devolver el cliente encontrado
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Error al obtener el cliente:', error);
     res.status(500).json({ mensaje: 'Error en el servidor' });
   }
 };
+
+
+
+// Obtener perfil del cliente y sus expedientes asociados
+const getPerfilCliente = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Buscar datos del cliente
+    const clienteResult = await db.query('SELECT * FROM clientes WHERE id = $1', [id]);
+    if (clienteResult.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+    }
+
+    const cliente = clienteResult.rows[0];
+
+    // Buscar expedientes donde el cliente es demandante o demandado
+    const expedienteResult = await db.query(
+      `SELECT * FROM expedientes 
+       WHERE demandante_carnet = $1 OR demandado_carnet = $1`,
+      [cliente.carnet_identidad]
+    );
+
+    res.json({
+      cliente: {
+        id: cliente.id,
+        nombre: cliente.nombre,
+        apellido: cliente.apellido,
+        carnet_identidad: cliente.carnet_identidad,
+        email: cliente.email,
+      },
+      expedientes: expedienteResult.rows
+    });
+
+  } catch (error) {
+    console.error('Error en getPerfilCliente:', error);
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
+};
+
+
+
 
 // Crear un nuevo cliente
 const crearCliente = async (req, res) => {
@@ -42,10 +84,10 @@ const crearCliente = async (req, res) => {
   }
 };
 
-// Actualizar un cliente por ID
+// Actualizar un cliente
 const updateCliente = async (req, res) => {
-  const { id } = req.params;  // Obtener el id del cliente desde los parámetros de la URL
-  const { nombre, apellido, carnet_identidad, email, password } = req.body;  // Datos del cliente a actualizar
+  const { id } = req.params;
+  const { nombre, apellido, carnet_identidad, email, password } = req.body;
 
   try {
     const result = await db.query(
@@ -65,9 +107,9 @@ const updateCliente = async (req, res) => {
   }
 };
 
-// Eliminar un cliente por ID
+// Eliminar un cliente
 const deleteCliente = async (req, res) => {
-  const { id } = req.params;  // Obtenemos el id del cliente desde los parámetros de la URL
+  const { id } = req.params;
 
   try {
     const result = await db.query('DELETE FROM clientes WHERE id = $1 RETURNING *', [id]);
@@ -86,8 +128,9 @@ const deleteCliente = async (req, res) => {
 
 module.exports = {
   getClientes,
-  getClienteById,  // Nueva función para obtener el cliente por ID
+  getClienteById,
+  getPerfilCliente, // <- NUEVO
   crearCliente,
-  updateCliente,  
+  updateCliente,
   deleteCliente
 };

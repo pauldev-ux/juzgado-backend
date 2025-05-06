@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getClientes, getClienteById, crearCliente, updateCliente, deleteCliente } = require('../controllers/clienteController');
+const { getClientes, getClienteById, crearCliente, updateCliente, deleteCliente, getPerfilCliente, } = require('../controllers/clienteController');
 
 // Ruta para obtener la lista de clientes
 router.get('/', getClientes);
@@ -16,5 +16,8 @@ router.put('/update/:id', updateCliente);  // Ruta PUT para actualizar el client
 
 // Ruta para eliminar un cliente por ID
 router.delete('/delete/:id', deleteCliente);
+
+
+router.get('/perfil/:id', getPerfilCliente); // <- NUEVA RUTA
 
 module.exports = router;
