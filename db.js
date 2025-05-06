@@ -2,22 +2,25 @@
 require('dotenv').config({
   path: process.env.NODE_ENV === 'production'
     ? '.env.production'
-    : '.env.local'
+    : '.env.local',
+    override: true
 });
 
 const { Pool } = require('pg');
+const isProd = process.env.NODE_ENV === 'production';
 
-const pool = new Pool({
-  // si tienes DATABASE_URL en producción, pg lo detecta solo:
-  connectionString: process.env.DATABASE_URL,
-  // para local puedes seguir usando las variables sueltas:
-  user:     process.env.PGUSER,
-  host:     process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port:     parseInt(process.env.PGPORT, 10),
-  // si Railway te exige SSL:
-  // ssl: { rejectUnauthorized: false }
-});
+const config = isProd
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    }
+  : {
+      user:     process.env.PGUSER,
+      host:     process.env.PGHOST,
+      database: process.env.PGDATABASE,
+      password: process.env.PGPASSWORD,
+      port:     Number(process.env.PGPORT),
+    };
 
+const pool = new Pool(config);
 module.exports = pool;
